@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Interactive Code Runner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: #2d2d2d;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #4f8ef7;
+        }
+        
+        h1 {
+            color: #4f8ef7;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: #252526;
+        }
+        
+        .terminal-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: #1e1e1e;
+            border-left: 1px solid #444;
+        }
+        
+        textarea {
+            flex: 1;
+            background: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-run {
+            background: #4f8ef7;
+            color: white;
+        }
+        
+        .btn-stop {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-clear {
+            background: #6b7280;
+            color: white;
+        }
+        
+        #terminal {
+            flex: 1;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #2d2d2d;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background: #1e3a1e;
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+        
+        .status.disconnected {
+            background: #3a1e1e;
+            color: #f87171;
+            border: 1px solid #f87171;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 Interactive Code Runner</h1>
+        <p>Write Python code and run it interactively with real-time input/output</p>
+    </header>
+    
+    <div class="container">
+        <div class="editor-panel">
+            <h3>📝 Python Code Editor</h3>
+            <textarea id="code" placeholder="Write your Python code here...">print("🚀 Welcome to Interactive Python Runner!")
+print("This demonstrates REAL-TIME execution!")
+
+# Interactive input example
+name = input("What's your name? ")
+print(f"Hello, {name}!")
+
+# Math example
+print("\nLet's do some math:")
+num1 = float(input("Enter first number: "))
+num2 = float(input("Enter second number: "))
+print(f"Result: {num1} + {num2} = {num1 + num2}")
+
+print("\n🎉 Interactive execution working perfectly!")</textarea>
+            
+            <div class="controls">
+                <button class="btn-run" id="runBtn">▶️ Run Interactive</button>
+                <button class="btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
+                <button class="btn-clear" id="clearBtn">🗑️ Clear Terminal</button>
+            </div>
+            
+            <div class="status" id="status">Status: Connecting...</div>
+        </div>
+        
+        <div class="terminal-panel">
+            <h3>💻 Live Terminal Output</h3>
+            <div id="terminal"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Update this with your Render URL after deployment
+        const SERVER_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:1000' 
+            : 'YOUR_RENDER_URL_HERE';
+        
+        // Global variables
+        let socket = null;
+        let terminal = null;
+        let fitAddon = null;
+        let isConnected = false;
+        let isRunning = false;
+        
+        // Initialize terminal
+        function initializeTerminal() {
+            terminal = new Terminal({
+                theme: {
+                    background: '#1e1e1e',
+                    foreground: '#ffffff',
+                    cursor: '#4f8ef7',
+                    selection: '#4f8ef7'
+                },
+                fontSize: 14,
+                fontFamily: 'Consolas, "Courier New", monospace',
+                cursorBlink: true
+            });
+            
+            fitAddon = new FitAddon.FitAddon();
+            terminal.loadAddon(fitAddon);
+            
+            terminal.open(document.getElementById('terminal'));
+            fitAddon.fit();
+            
+            // Handle terminal input
+            terminal.onData(data => {
+                if (isConnected && isRunning) {
+                    socket.emit('send_input', { data: data });
+                }
+            });
+            
+            terminal.write('🚀 Interactive Terminal Ready\r\n');
+            terminal.write('Click "Run Interactive" to start coding!\r\n\r\n');
+        }
+        
+        // Initialize Socket.io connection
+        function initializeSocket() {
+            socket = io(SERVER_URL, {
+                transports: ['websocket', 'polling']
+            });
+            
+            socket.on('connect', () => {
+                isConnected = true;
+                updateStatus('✅ Connected to server', 'connected');
+                updateButtons();
+                terminal.write('✅ Connected to server\r\n');
+            });
+            
+            socket.on('connected', (data) => {
+                terminal.write('🔗 ' + data.msg + '\r\n');
+            });
+            
+            socket.on('started', (data) => {
+                isRunning = true;
+                updateButtons();
+                terminal.write('🚀 ' + data.msg + '\r\n');
+                terminal.write('You can now interact with your program!\r\n\r\n');
+            });
+            
+            socket.on('output', (data) => {
+                terminal.write(data.data);
+            });
+            
+            socket.on('exit', (data) => {
+                isRunning = false;
+                updateButtons();
+                terminal.write('\r\n🏁 Program finished (Exit code: ' + data.code + ')\r\n');
+                terminal.write('💡 Click "Run Interactive" to run again\r\n\r\n');
+            });
+            
+            socket.on('error', (data) => {
+                terminal.write('\r\n❌ Error: ' + data.msg + '\r\n');
+            });
+            
+            socket.on('disconnect', () => {
+                isConnected = false;
+                isRunning = false;
+                updateStatus('❌ Disconnected from server', 'disconnected');
+                updateButtons();
+                terminal.write('\r\n📡 Disconnected from server\r\n');
+            });
+            
+            socket.on('connect_error', (error) => {
+                updateStatus('❌ Connection failed: ' + error.message, 'disconnected');
+                terminal.write('\r\n❌ Connection failed: ' + error.message + '\r\n');
+            });
+        }
+        
+        // Control functions
+        function startInteractive() {
+            const code = document.getElementById('code').value.trim();
+            
+            if (!code) {
+                terminal.write('❌ Please write some code first!\r\n');
+                return;
+            }
+            
+            isRunning = true;
+            updateButtons();
+            
+            terminal.clear();
+            terminal.write('🚀 Starting interactive session...\r\n');
+            
+            socket.emit('start_interactive', {
+                code: code,
+                language: 'python'
+            });
+        }
+        
+        function stopInteractive() {
+            if (socket) {
+                socket.disconnect();
+                setTimeout(() => {
+                    socket.connect();
+                }, 1000);
+            }
+            isRunning = false;
+            updateButtons();
+            terminal.write('\r\n🛑 Session stopped\r\n');
+        }
+        
+        function clearTerminal() {
+            terminal.clear();
+            terminal.write('Terminal cleared\r\n\r\n');
+        }
+        
+        // UI functions
+        function updateStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = 'Status: ' + message;
+            statusEl.className = 'status ' + (type || 'disconnected');
+        }
+        
+        function updateButtons() {
+            document.getElementById('runBtn').disabled = !isConnected || isRunning;
+            document.getElementById('stopBtn').disabled = !isConnected || !isRunning;
+        }
+        
+        // Initialize everything
+        window.onload = function() {
+            initializeTerminal();
+            initializeSocket();
+            
+            // Add event listeners
+            document.getElementById('runBtn').addEventListener('click', startInteractive);
+            document.getElementById('stopBtn').addEventListener('click', stopInteractive);
+            document.getElementById('clearBtn').addEventListener('click', clearTerminal);
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                fitAddon.fit();
+            });
+            
+            updateButtons();
+        };
+    </script>
+</body>
+</html>
