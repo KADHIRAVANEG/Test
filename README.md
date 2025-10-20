@@ -1,371 +1,311 @@
-🚀 Interactive Code Runner - Complete Project Documentation
-📋 Project Overview
-Interactive Code Runner is a full-stack web application that provides a real-time, interactive coding environment where users can write, execute, and debug Python code directly in their browser. The platform features a live terminal interface that supports interactive input/output, making it feel like a local development environment but accessible from anywhere.
+# 🚀 Interactive Code Runner - Complete Project Documentation
 
-🎯 Key Features
-🔥 Core Functionality
-Real-time Code Execution: Execute Python code with immediate output
+## 📋 Project Overview
 
-Interactive Input Support: Handle input() statements and user prompts
+**Interactive Code Runner** is a full-stack web application that provides a real-time, interactive coding environment where users can write, execute, and debug Python code directly in their browser. The platform features a live terminal interface that supports interactive input/output, making it feel like a local development environment but accessible from anywhere.
 
-Live Terminal Interface: xterm.js-powered terminal for authentic coding experience
+## 🎯 Key Features
 
-Multi-session Support: Multiple users can run code simultaneously
+### 🔥 Core Functionality
+- **Real-time Code Execution**: Execute Python code with immediate output
+- **Interactive Input Support**: Handle `input()` statements and user prompts
+- **Live Terminal Interface**: xterm.js-powered terminal for authentic coding experience
+- **Multi-session Support**: Multiple users can run code simultaneously
+- **Error Handling**: Comprehensive error capture and display
 
-Error Handling: Comprehensive error capture and display
+### 💻 User Experience
+- **Monaco-like Editor**: Clean code editor with syntax highlighting
+- **Real-time Output**: See program output as it happens
+- **Session Management**: Start, stop, and clear execution sessions
+- **Responsive Design**: Works on desktop and mobile devices
+- **Dark Theme**: Developer-friendly dark interface
 
-💻 User Experience
-Monaco-like Editor: Clean code editor with syntax highlighting
+### 🛡️ Technical Features
+- **WebSocket Communication**: Real-time bidirectional communication
+- **Docker Containerization**: Isolated execution environment
+- **Process Management**: Proper process lifecycle management
+- **Resource Cleanup**: Automatic cleanup of temporary files
+- **Cross-Origin Support**: CORS-enabled for flexible deployment
 
-Real-time Output: See program output as it happens
+## 🏗️ System Architecture
 
-Session Management: Start, stop, and clear execution sessions
-
-Responsive Design: Works on desktop and mobile devices
-
-Dark Theme: Developer-friendly dark interface
-
-🛡️ Technical Features
-WebSocket Communication: Real-time bidirectional communication
-
-Docker Containerization: Isolated execution environment
-
-Process Management: Proper process lifecycle management
-
-Resource Cleanup: Automatic cleanup of temporary files
-
-Cross-Origin Support: CORS-enabled for flexible deployment
-
-🏗️ System Architecture
-Frontend Layer
-text
+### Frontend Layer
+```
 HTML5 + CSS3 + JavaScript
 ├── xterm.js (Terminal Emulation)
 ├── Socket.io Client (WebSocket Communication)
 ├── Monaco Editor (Code Editing)
 └── Responsive UI Components
-Backend Layer
-text
+```
+
+### Backend Layer
+```
 Python Flask + Socket.io
 ├── WebSocket Handlers
 ├── Subprocess Management
 ├── Session Management
 └── Temporary File System
-Execution Layer
-text
+```
+
+### Execution Layer
+```
 Python Subprocess
 ├── Code Execution
 ├── Input/Output Handling
 ├── Process Isolation
 └── Resource Management
-📁 Complete File Structure
-Backend Files
-text
+```
+
+## 📁 Complete File Structure
+
+### Backend Files
+```
 backend/
 ├── app.py                 # Main Flask application
 ├── requirements.txt       # Python dependencies
 └── Dockerfile            # Container configuration
-Frontend Files
-text
+```
+
+### Frontend Files
+```
 frontend/
 └── index.html            # Complete web interface
-🔧 Technical Implementation Details
-Backend (app.py)
-Core Components:
-Flask Application Setup
+```
 
-CORS configuration for cross-origin requests
+## 🔧 Technical Implementation Details
 
-Socket.IO for real-time communication
+### Backend (`app.py`)
 
-Port configuration for deployment
+#### Core Components:
+1. **Flask Application Setup**
+   - CORS configuration for cross-origin requests
+   - Socket.IO for real-time communication
+   - Port configuration for deployment
 
-Session Management
+2. **Session Management**
+   ```python
+   active_sessions = {}  # Track active user sessions
+   # Structure: {session_id: {process, workdir}}
+   ```
 
-python
-active_sessions = {}  # Track active user sessions
-# Structure: {session_id: {process, workdir}}
-Code Execution Engine
+3. **Code Execution Engine**
+   - Creates isolated temporary directories
+   - Spawns Python subprocess with unbuffered output
+   - Manages process lifecycle
+   - Handles input/output streams
 
-Creates isolated temporary directories
+4. **WebSocket Event Handlers**
+   - `start_interactive`: Initialize new coding session
+   - `send_input`: Send user input to running process
+   - Real-time output streaming to clients
 
-Spawns Python subprocess with unbuffered output
+### Frontend (`index.html`)
 
-Manages process lifecycle
+#### Key Components:
+1. **Terminal Interface**
+   - xterm.js integration for terminal emulation
+   - Real-time output display
+   - Keyboard input capture
+   - Fit-to-window responsiveness
 
-Handles input/output streams
+2. **Code Editor**
+   - Textarea-based code input
+   - Pre-loaded example code
+   - Syntax highlighting ready
 
-WebSocket Event Handlers
+3. **WebSocket Client**
+   - Connection management
+   - Event handling for session states
+   - Error handling and reconnection
 
-start_interactive: Initialize new coding session
+4. **UI Controls**
+   - Run/Stop/Clear buttons
+   - Connection status indicator
+   - Responsive layout
 
-send_input: Send user input to running process
+## 🚀 Deployment Architecture
 
-Real-time output streaming to clients
-
-Frontend (index.html)
-Key Components:
-Terminal Interface
-
-xterm.js integration for terminal emulation
-
-Real-time output display
-
-Keyboard input capture
-
-Fit-to-window responsiveness
-
-Code Editor
-
-Textarea-based code input
-
-Pre-loaded example code
-
-Syntax highlighting ready
-
-WebSocket Client
-
-Connection management
-
-Event handling for session states
-
-Error handling and reconnection
-
-UI Controls
-
-Run/Stop/Clear buttons
-
-Connection status indicator
-
-Responsive layout
-
-🚀 Deployment Architecture
-Local Development
-bash
+### Local Development
+```bash
 # Run backend
 python app.py
 
 # Access frontend
 open index.html  # Or serve via local web server
-Render Deployment
-Docker-based deployment
+```
 
-Automatic dependency installation
+### Render Deployment
+1. **Docker-based deployment**
+2. **Automatic dependency installation**
+3. **Port configuration (1000)**
+4. **WebSocket support enabled**
 
-Port configuration (1000)
+## ⚙️ Configuration
 
-WebSocket support enabled
-
-⚙️ Configuration
-Environment Variables
-python
+### Environment Variables
+```python
 PORT = 1000  # Default port for Render compatibility
-Dependencies (requirements.txt)
-Flask: Web framework
+```
 
-Flask-SocketIO: WebSocket support
+### Dependencies (`requirements.txt`)
+- **Flask**: Web framework
+- **Flask-SocketIO**: WebSocket support
+- **Flask-CORS**: Cross-origin requests
+- **Eventlet**: Async server for Socket.IO
 
-Flask-CORS: Cross-origin requests
+## 🎮 Usage Workflow
 
-Eventlet: Async server for Socket.IO
+### 1. User Connects
+- Frontend establishes WebSocket connection
+- Terminal displays connection status
+- Editor is ready for code input
 
-🎮 Usage Workflow
-1. User Connects
-Frontend establishes WebSocket connection
-
-Terminal displays connection status
-
-Editor is ready for code input
-
-2. Code Execution
-python
+### 2. Code Execution
+```python
 # User writes code in editor
 print("Hello World")
 name = input("Enter name: ")
-3. Real-time Interaction
-User clicks "Run Interactive"
+```
+
+### 3. Real-time Interaction
+- User clicks "Run Interactive"
+- Backend creates isolated process
+- Output streams to terminal in real-time
+- Terminal waits for user input when needed
+
+### 4. Session Management
+- Multiple sessions supported
+- Proper cleanup on disconnect
+- Process termination on stop
+
+## 🔒 Security Features
+
+### Execution Safety
+- **Isolated Processes**: Each session runs in separate process
+- **Temporary Workspaces**: Automatic cleanup of code files
+- **Input Sanitization**: Basic input validation
+- **Resource Limits**: Process timeout handling
+
+### Web Security
+- **CORS Configuration**: Controlled cross-origin access
+- **WebSocket Validation**: Session-based communication
+- **Error Handling**: Graceful failure management
+
+## 📊 Performance Considerations
+
+### Scalability
+- **Stateless Design**: Session-based, no shared state
+- **Process Isolation**: Independent execution environments
+- **Resource Management**: Automatic cleanup prevents leaks
+
+### Optimization
+- **Efficient Output Streaming**: Line-by-line output for real-time feel
+- **WebSocket Efficiency**: Minimal overhead for real-time communication
+- **Memory Management**: Proper process termination
+
+## 🔄 Development Workflow
+
+### Local Testing
+1. Start backend server
+2. Open frontend in browser
+3. Test code execution
+4. Debug any issues
+
+### Deployment Process
+1. Push code to GitHub
+2. Connect repository to Render
+3. Configure as Docker service
+4. Update frontend URL if needed
+
+## 🎯 Use Cases
+
+### Educational Platforms
+- **Programming tutorials** with live examples
+- **Code demonstration** in classrooms
+- **Student practice** environments
+
+### Developer Tools
+- **Quick code testing** without local setup
+- **Algorithm prototyping**
+- **Code sharing** with live execution
+
+### Technical Interviews
+- **Live coding assessments**
+- **Problem-solving demonstrations**
+- **Collaborative coding sessions**
+
+## 🌟 Future Enhancements
+
+### Planned Features
+1. **Multi-language Support**
+   - JavaScript, Java, C++, etc.
+   - Language-specific execution environments
+
+2. **Advanced Editor**
+   - Monaco Editor integration
+   - Syntax highlighting
+   - Auto-completion
+
+3. **Collaboration Features**
+   - Real-time code sharing
+   - Multi-user sessions
+   - Code persistence
+
+4. **Enhanced Security**
+   - Sandboxed execution environments
+   - Resource usage limits
+   - Code analysis for safety
+
+## 📈 Monitoring & Analytics
+
+### Built-in Logging
+- Connection/disconnection events
+- Session start/end tracking
+- Error logging for debugging
+
+### Performance Metrics
+- Response times
+- Memory usage
+- Concurrent session tracking
 
-Backend creates isolated process
+## 🛠️ Troubleshooting Guide
 
-Output streams to terminal in real-time
+### Common Issues
+1. **Connection Problems**
+   - Check WebSocket URL configuration
+   - Verify CORS settings
+   - Check firewall/proxy settings
 
-Terminal waits for user input when needed
+2. **Code Execution Issues**
+   - Verify Python installation on server
+   - Check process permissions
+   - Review error logs
 
-4. Session Management
-Multiple sessions supported
+3. **Performance Issues**
+   - Monitor resource usage
+   - Check for memory leaks
+   - Review process cleanup
 
-Proper cleanup on disconnect
+## 📚 API Documentation
 
-Process termination on stop
+### WebSocket Events
 
-🔒 Security Features
-Execution Safety
-Isolated Processes: Each session runs in separate process
+#### Client → Server
+- `start_interactive`: Start new execution session
+- `send_input`: Send user input to running process
 
-Temporary Workspaces: Automatic cleanup of code files
+#### Server → Client
+- `connected`: Connection established
+- `started`: Session started successfully
+- `output`: Program output data
+- `exit`: Process terminated
+- `error`: Error occurred
 
-Input Sanitization: Basic input validation
+### HTTP Endpoints
+- `GET /`: Health check and status information
 
-Resource Limits: Process timeout handling
+## 🎉 Conclusion
 
-Web Security
-CORS Configuration: Controlled cross-origin access
-
-WebSocket Validation: Session-based communication
-
-Error Handling: Graceful failure management
-
-📊 Performance Considerations
-Scalability
-Stateless Design: Session-based, no shared state
-
-Process Isolation: Independent execution environments
-
-Resource Management: Automatic cleanup prevents leaks
-
-Optimization
-Efficient Output Streaming: Line-by-line output for real-time feel
-
-WebSocket Efficiency: Minimal overhead for real-time communication
-
-Memory Management: Proper process termination
-
-🔄 Development Workflow
-Local Testing
-Start backend server
-
-Open frontend in browser
-
-Test code execution
-
-Debug any issues
-
-Deployment Process
-Push code to GitHub
-
-Connect repository to Render
-
-Configure as Docker service
-
-Update frontend URL if needed
-
-🎯 Use Cases
-Educational Platforms
-Programming tutorials with live examples
-
-Code demonstration in classrooms
-
-Student practice environments
-
-Developer Tools
-Quick code testing without local setup
-
-Algorithm prototyping
-
-Code sharing with live execution
-
-Technical Interviews
-Live coding assessments
-
-Problem-solving demonstrations
-
-Collaborative coding sessions
-
-🌟 Future Enhancements
-Planned Features
-Multi-language Support
-
-JavaScript, Java, C++, etc.
-
-Language-specific execution environments
-
-Advanced Editor
-
-Monaco Editor integration
-
-Syntax highlighting
-
-Auto-completion
-
-Collaboration Features
-
-Real-time code sharing
-
-Multi-user sessions
-
-Code persistence
-
-Enhanced Security
-
-Sandboxed execution environments
-
-Resource usage limits
-
-Code analysis for safety
-
-📈 Monitoring & Analytics
-Built-in Logging
-Connection/disconnection events
-
-Session start/end tracking
-
-Error logging for debugging
-
-Performance Metrics
-Response times
-
-Memory usage
-
-Concurrent session tracking
-
-🛠️ Troubleshooting Guide
-Common Issues
-Connection Problems
-
-Check WebSocket URL configuration
-
-Verify CORS settings
-
-Check firewall/proxy settings
-
-Code Execution Issues
-
-Verify Python installation on server
-
-Check process permissions
-
-Review error logs
-
-Performance Issues
-
-Monitor resource usage
-
-Check for memory leaks
-
-Review process cleanup
-
-📚 API Documentation
-WebSocket Events
-Client → Server
-start_interactive: Start new execution session
-
-send_input: Send user input to running process
-
-Server → Client
-connected: Connection established
-
-started: Session started successfully
-
-output: Program output data
-
-exit: Process terminated
-
-error: Error occurred
-
-HTTP Endpoints
-GET /: Health check and status information
-
-🎉 Conclusion
-The Interactive Code Runner represents a complete, production-ready platform for interactive code execution. With its robust architecture, real-time capabilities, and user-friendly interface, it provides an excellent foundation for educational tools, developer utilities, and technical assessment platforms.
+The **Interactive Code Runner** represents a complete, production-ready platform for interactive code execution. With its robust architecture, real-time capabilities, and user-friendly interface, it provides an excellent foundation for educational tools, developer utilities, and technical assessment platforms.
 
 The project demonstrates modern web development practices including real-time communication, containerized deployment, and responsive design—making it a valuable addition to any developer's portfolio or educational institution's toolkit.
